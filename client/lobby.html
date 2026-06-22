@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Lobby</title>
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+</head>
+
+
+<body style="background:#111;color:white;text-align:center;font-family:Arial;">
+
+
+
+<h1 id="titulo">
+Lobby
+</h1>
+
+
+<button onclick="criarSala()">
+Criar Sala
+</button>
+
+
+
+<br><br>
+
+
+<input id="codigo" placeholder="Código">
+
+
+<button onclick="entrarSala()">
+Entrar
+</button>
+
+
+
+<h2 id="status"></h2>
+
+
+
+<script>
+
+
+const socket = io();
+
+
+
+let jogo =
+new URLSearchParams(
+window.location.search
+)
+.get("jogo");
+
+
+
+document.getElementById("titulo")
+.innerHTML =
+"Lobby - " + jogo;
+
+
+
+function criarSala(){
+
+
+socket.emit(
+"criarSala",
+{
+jogo:jogo
+}
+);
+
+
+}
+
+
+
+
+socket.on(
+"salaCriada",
+(codigo)=>{
+
+
+document.getElementById("status")
+.innerHTML =
+"Sala criada: "
++
+codigo;
+
+
+
+});
+
+
+function entrarSala(){
+
+
+let codigo =
+document.getElementById("codigo").value;
+
+
+if(!codigo){
+
+alert("Digite o código");
+
+return;
+
+}
+
+
+socket.emit(
+"entrarSala",
+codigo
+);
+
+
+}
+
+
+
+
+socket.on(
+"jogadoresProntos",
+(sala)=>{
+
+
+console.log("Sala pronta:", sala);
+
+
+window.location.href =
+"/games/"+jogo+".html?sala="+sala.codigo;
+
+
+});
+
+
+
+</script>
+
+
+</body>
+
+</html>

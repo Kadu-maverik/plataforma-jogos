@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Damas</title>
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<style>
+
+body{
+
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+
+}
+
+
+#tabuleiro{
+
+width:480px;
+height:480px;
+
+margin:auto;
+
+display:grid;
+
+grid-template-columns:repeat(8,1fr);
+
+}
+
+
+.casa{
+
+width:60px;
+height:60px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:35px;
+
+}
+
+
+.preta{
+
+background:#333;
+
+}
+
+
+.branca{
+
+background:#eee;
+
+color:black;
+
+}
+
+
+.peca{
+
+width:40px;
+height:40px;
+
+border-radius:50%;
+
+background:red;
+
+}
+
+
+.branco{
+
+background:white;
+
+}
+
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>♟ Damas</h1>
+
+
+<h2 id="status">
+Aguardando jogadores...
+</h2>
+
+<h3 id="cor"></h3>
+
+
+
+<div id="tabuleiro"></div>
+
+
+
+<script>
+
+
+const socket =
+io();
+
+
+let sala =
+new URLSearchParams(
+window.location.search
+)
+.get("sala");
+
+if(!sala){
+
+alert("Sem sala");
+throw new Error("Sem sala");
+
+}
+
+
+
+socket.emit(
+"entrarDama",
+sala
+);
+
+
+
+let selecionada=null;
+
+let minhaCor = "";
+
+let jogoAtual = null;
+
+
+
+socket.on(
+"suaCor",
+(cor)=>{
+
+
+minhaCor = cor;
+
+
+document.getElementById("cor")
+.innerHTML =
+"Você joga com: "
++cor;
+
+
+});
+
+
+function criarTabuleiro(){
+
+
+let board =
+document.getElementById("tabuleiro");
+
+
+board.innerHTML="";
+
+
+
+for(let l=0;l<8;l++){
+
+
+for(let c=0;c<8;c++){
+
+
+
+let casa =
+document.createElement("div");
+
+
+
+casa.className =
+"casa " +
+((l+c)%2===0 ? "branca" : "preta");
+
+
+
+casa.onclick = ()=>{
+
+
+if(selecionada){
+
+
+socket.emit(
+"movimentoDama",
+{
+
+sala,
+
+origem:selecionada,
+
+destino:{
+l:l,
+c:c
+}
+
+});
+
+
+selecionada=null;
+
+
+}
+
+
+};
+
+
+
+board.appendChild(casa);
+
+
+
+}
+
+
+}
+
+
+}
+
+
+
+
+socket.on(
+"estadoDama",
+(jogo)=>{
+
+    jogoAtual = jogo;
+
+    console.log("Recebi jogo:", jogo);
+
+
+criarTabuleiro();
+
+
+
+let casas =
+document.querySelectorAll(
+".casa"
+);
+
+
+
+for(
+let l=0;l<8;l++
+){
+
+for(
+let c=0;c<8;c++
+){
+
+
+let peca =
+jogo.tabuleiro[l][c];
+
+
+if(peca){
+
+
+let div =
+document.createElement(
+"div"
+);
+
+
+
+div.className =
+"peca " +
+peca;
+
+
+div.onclick=(e)=>{
+
+
+e.stopPropagation();
+
+
+
+if(jogoAtual.turno !== minhaCor){
+
+document.getElementById("status")
+.innerHTML =
+"Não é sua vez";
+
+return;
+
+}
+
+
+
+selecionada={
+
+l:l,
+
+c:c
+
+};
+
+
+document.getElementById(
+"status"
+).innerHTML =
+"Peça selecionada";
+
+
+};
+
+
+
+casas[l*8+c]
+.appendChild(div);
+
+
+
+}
+
+
+}
+
+
+}
+
+
+
+if(jogo.fim){
+
+
+document.getElementById("status")
+.innerHTML =
+"🏆 Fim da partida";
+
+
+}else{
+
+
+document.getElementById("status")
+.innerHTML =
+"Turno: "
++
+jogo.turno;
+
+
+}
+
+
+
+});
+
+
+
+
+criarTabuleiro();
+
+
+
+</script>
+
+
+</body>
+
+</html>

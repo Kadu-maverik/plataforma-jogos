@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<h1>Login</h1>
+
+<input id="email" placeholder="email">
+
+<input id="senha" placeholder="senha">
+
+<button onclick="login()">
+Entrar
+</button>
+
+
+<script>
+
+async function login(){
+
+
+const resposta = await fetch(
+"http://localhost:3000/api/auth/login",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+email:
+document.getElementById("email").value,
+
+senha:
+document.getElementById("senha").value
+
+})
+
+});
+
+
+const dados = await resposta.json();
+
+
+console.log(dados);
+
+
+// guarda token
+
+localStorage.setItem(
+"token",
+dados.token
+);
+
+
+alert("Login feito");
+
+
+}
+
+</script>
+
+
+</body>
+
+</html>
