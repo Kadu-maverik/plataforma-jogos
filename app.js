@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 require("dotenv").config();
 
@@ -81,21 +82,11 @@ authRoutes
 );
 
 
+const path = require("path");
 
-
-
-app.get("/",(req,res)=>{
-
-
-res.send(
-"Servidor da plataforma de jogos online funcionando"
-);
-
-
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "menu.html"));
 });
-
-
-
 
 
 // conexão jogadores
