@@ -1,54 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #1e1e2f;
-            color: white;
-            font-family: Arial;
-        }
+<meta charset="UTF-8">
+<title>Login</title>
+<style>
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#111;
+color:white;
+font-family:Arial;
+}
 
-        .box {
-            text-align: center;
-        }
+.box{
+text-align:center;
+}
 
-        input {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            border: none;
-        }
+input{
+padding:10px;
+margin:5px;
+width:200px;
+}
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+button{
+padding:10px 20px;
+cursor:pointer;
+}
+</style>
 </head>
 
 <body>
-    <div class="box">
-        <h1>Login</h1>
+<div class="box">
+<h2>Plataforma de Jogos</h2>
 
-        <input placeholder="Email"><br>
-        <input placeholder="Password" type="password"><br>
+<input id="user" placeholder="Username">
 
-        <button onclick="login()">Entrar</button>
-    </div>
+<br>
 
-    <script>
-        function login() {
-            window.location.href = "/";
-        }
-    </script>
+<button onclick="login()">Entrar</button>
+</div>
+
+<script>
+function login(){
+const user = document.getElementById("user").value;
+
+if(!user){
+alert("Escreve username");
+return;
+}
+
+localStorage.setItem("user", user);
+
+window.location.href = "/menu.html";
+}
+</script>
+
 </body>
 </html>

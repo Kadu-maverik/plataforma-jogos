@@ -1,133 +1,57 @@
 const {
+    criarPartida,
+    adicionarJogador,
+    pegarPartida
+} = require("../core/matchManager");
 
-criarPartida,
-adicionarJogador,
-pegarPartida
+function lobbySocket(io) {
 
-}=require("../core/matchManager");
+    io.on("connection", (socket) => {
 
+        console.log("Socket conectado:", socket.id);
 
+        // CRIAR SALA
+        socket.on("criarSala", (data) => {
 
-function lobbySocket(io){
+            const codigo = Math.random()
+                .toString(36)
+                .substring(2, 8)
+                .toUpperCase();
 
+            criarPartida(socket.id, codigo, data?.jogo || "dama");
 
-io.on("connection",(socket)=>{
+            adicionarJogador(codigo, { id: socket.id });
 
+            socket.join(codigo);
 
+            socket.emit("salaCriada", codigo);
+        });
 
-socket.on(
-"criarSala",
-(data)=>{
+        // ENTRAR SALA
+        socket.on("entrarSala", (codigo) => {
 
+            const partida = pegarPartida(codigo);
 
-let codigo =
-Math.random()
-.toString(36)
-.substring(2,8)
-.toUpperCase();
+            if (!partida) {
+                socket.emit("erroSala", "Sala inexistente");
+                return;
+            }
 
+            adicionarJogador(codigo, { id: socket.id });
 
+            socket.join(codigo);
 
-let partida =
-criarPartida(
-socket.id,
-codigo,
-data?.jogo || "dama"
-);
+            io.to(codigo).emit("jogadoresProntos", {
+                codigo
+            });
+        });
 
+        // DISCONNECT
+        socket.on("disconnect", () => {
+            console.log("Socket saiu:", socket.id);
+        });
 
-
-adicionarJogador(
-codigo,
-{
-id:socket.id
-}
-);
-
-
-
-socket.join(codigo);
-
-
-
-socket.emit(
-"salaCriada",
-codigo
-);
-
-
-
-});
-
-
-
-
-
-
-socket.on(
-"entrarSala",
-(codigo)=>{
-
-
-
-let partida =
-adicionarJogador(
-codigo,
-{
-id:socket.id
-}
-);
-
-
-
-if(!partida){
-
-
-socket.emit(
-"erroSala",
-"Sala cheia ou inexistente"
-);
-
-
-return;
-
-
+    });
 }
 
-
-
-socket.join(codigo);
-
-
-
-io.to(codigo)
-.emit(
-"jogadoresProntos",
-{
-codigo:codigo
-}
-);
-
-
-
-});
-
-
-
-
-socket.on(
-"disconnect",
-()=>{
-
-
-});
-
-
-});
-
-
-
-}
-
-
-module.exports=lobbySocket;
+module.exports = lobbySocket;
