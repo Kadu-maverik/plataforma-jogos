@@ -1,8 +1,8 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const path = require("path");
 
 require("dotenv").config();
@@ -19,9 +19,7 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: "*"
-    }
+    cors: { origin: "*" }
 });
 
 // SOCKETS
@@ -32,14 +30,14 @@ damaSocket(io);
 app.use(cors());
 app.use(express.json());
 
-// FRONTEND (static files)
+// FRONTEND
 app.use(express.static(path.join(__dirname, "client")));
 
-// ROUTES API
+// ROTAS API
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 
-// LOGIN PRIMEIRO (IMPORTANTE)
+// PÁGINA INICIAL
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "login.html"));
 });
@@ -53,7 +51,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// DATABASE
+// BANCO
 conectarMongo();
 
 // PORT
