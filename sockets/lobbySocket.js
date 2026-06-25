@@ -1,57 +1,133 @@
 const {
-    criarPartida,
-    adicionarJogador,
-    pegarPartida
-} = require("../core/matchManager");
 
-function lobbySocket(io) {
+criarPartida,
+adicionarJogador,
+pegarPartida
 
-    io.on("connection", (socket) => {
+}=require("../core/matchManager");
 
-        console.log("Socket conectado:", socket.id);
 
-        // CRIAR SALA
-        socket.on("criarSala", (data) => {
 
-            const codigo = Math.random()
-                .toString(36)
-                .substring(2, 8)
-                .toUpperCase();
+function lobbySocket(io){
 
-            criarPartida(socket.id, codigo, data?.jogo || "dama");
 
-            adicionarJogador(codigo, { id: socket.id });
+io.on("connection",(socket)=>{
 
-            socket.join(codigo);
 
-            socket.emit("salaCriada", codigo);
-        });
 
-        // ENTRAR SALA
-        socket.on("entrarSala", (codigo) => {
+socket.on(
+"criarSala",
+(data)=>{
 
-            const partida = pegarPartida(codigo);
 
-            if (!partida) {
-                socket.emit("erroSala", "Sala inexistente");
-                return;
-            }
+let codigo =
+Math.random()
+.toString(36)
+.substring(2,8)
+.toUpperCase();
 
-            adicionarJogador(codigo, { id: socket.id });
 
-            socket.join(codigo);
 
-            io.to(codigo).emit("jogadoresProntos", {
-                codigo
-            });
-        });
+let partida =
+criarPartida(
+socket.id,
+codigo,
+data?.jogo || "dama"
+);
 
-        // DISCONNECT
-        socket.on("disconnect", () => {
-            console.log("Socket saiu:", socket.id);
-        });
 
-    });
+
+adicionarJogador(
+codigo,
+{
+id:socket.id
+}
+);
+
+
+
+socket.join(codigo);
+
+
+
+socket.emit(
+"salaCriada",
+codigo
+);
+
+
+
+});
+
+
+
+
+
+
+socket.on(
+"entrarSala",
+(codigo)=>{
+
+
+
+let partida =
+adicionarJogador(
+codigo,
+{
+id:socket.id
+}
+);
+
+
+
+if(!partida){
+
+
+socket.emit(
+"erroSala",
+"Sala cheia ou inexistente"
+);
+
+
+return;
+
+
 }
 
-module.exports = lobbySocket;
+
+
+socket.join(codigo);
+
+
+
+io.to(codigo)
+.emit(
+"jogadoresProntos",
+{
+codigo:codigo
+}
+);
+
+
+
+});
+
+
+
+
+socket.on(
+"disconnect",
+()=>{
+
+
+});
+
+
+});
+
+
+
+}
+
+
+module.exports=lobbySocket;
