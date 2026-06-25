@@ -7,141 +7,58 @@ const path = require("path");
 
 require("dotenv").config();
 
-
 const conectarMongo = require("./database/mongodb");
-
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-
 const lobbySocket = require("./sockets/lobbySocket");
 const damaSocket = require("./games/dama/socket");
 
-
-
 const app = express();
-
-
 const server = http.createServer(app);
 
-
-
-const io = new Server(server,{
-
-cors:{
-
-origin:"*"
-
-}
-
+const io = new Server(server, {
+    cors: {
+        origin: "*"
+    }
 });
 
-
-
-
-// sockets
-
+// SOCKETS
 lobbySocket(io);
-
 damaSocket(io);
 
-
-
-
-
-// middlewares
-
+// MIDDLEWARES
 app.use(cors());
-
 app.use(express.json());
 
+// FRONTEND (static files)
+app.use(express.static(path.join(__dirname, "client")));
 
+// ROUTES API
+app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoutes);
 
-// frontend
-
-app.use(
-express.static("client")
-);
-
-
-
-
-
-// rotas
-
-app.use(
-"/api/user",
-userRoutes
-);
-
-
-app.use(
-"/api/auth",
-authRoutes
-);
-
+// LOGIN PRIMEIRO (IMPORTANTE)
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "client", "menu.html"));
+    res.sendFile(path.join(__dirname, "client", "login.html"));
 });
 
+// SOCKET LOG
+io.on("connection", (socket) => {
+    console.log("Jogador conectado:", socket.id);
 
-// conexão jogadores
-
-io.on(
-"connection",
-(socket)=>{
-
-
-console.log(
-"Jogador conectado:",
-socket.id
-);
-
-
-
-socket.on(
-"disconnect",
-()=>{
-
-
-console.log(
-"Jogador saiu:",
-socket.id
-);
-
-
+    socket.on("disconnect", () => {
+        console.log("Jogador saiu:", socket.id);
+    });
 });
 
-
-});
-
-
-
-
-
-
-// banco
-
+// DATABASE
 conectarMongo();
 
+// PORT
+const PORT = process.env.PORT || 3000;
 
-
-
-
-const PORT =
-process.env.PORT || 3000;
-
-
-
-server.listen(
-PORT,
-()=>{
-
-
-console.log(
-`Servidor iniciado na porta ${PORT}`
-);
-
-
+server.listen(PORT, () => {
+    console.log(`Servidor iniciado na porta ${PORT}`);
 });
