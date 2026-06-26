@@ -266,10 +266,10 @@ if(user){
 
 // ROTAS (alinhado com tua estrutura)
 const gamesRoutes = {
-  dama: "games/dama.html/client/lobby.html",
-  xadrez: "xadrez.html",
-  domino: "domino.html",
-  velha: "velha.html"
+  dama: "games/dama.html",
+  xadrez: "games/xadrez.html",
+  domino: "games/domino.html",
+  velha: "games/velha.html"
 };
 
 function play(game){
@@ -281,7 +281,7 @@ function play(game){
   }
 
   // futuro: integrar lobbySocket antes de entrar no jogo
-  window.location.href = route;
+  window.location.href = "lobbySocket";
 }
 
 function goLobby(){
