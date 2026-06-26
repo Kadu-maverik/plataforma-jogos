@@ -14,6 +14,8 @@ const userRoutes = require("./routes/userRoutes");
 
 const lobbySocket = require("./sockets/lobbySocket");
 
+const damaSocket = require("./games/dama/socket");
+
 const app = express();
 const server = http.createServer(app);
 
