@@ -159,7 +159,7 @@ const socket = io();
 
 /* CRIAR SALA */
 function criarSala(){
-  socket.emit("createRoom");
+  socket.emit("createRoom", "dama");
 }
 
 /* ENTRAR NA SALA */
@@ -193,6 +193,24 @@ function sendMsg(){
 socket.on("chat", (data)=>{
   document.getElementById("chat").innerHTML += `<div><b>${data.user}:</b> ${data.msg}</div>`;
 });
+
+let currentRoom = null;
+
+/* 🔵 SALA CRIADA */
+socket.on("roomCreated", (roomId) => {
+  currentRoom = roomId;
+  alert("Sala criada! ID: " + roomId);
+});
+
+/* 🔥 SALA PRONTA (2 jogadores) */
+socket.on("roomReady", (roomId) => {
+  alert("Jogadores prontos! A entrar no jogo...");
+
+  setTimeout(() => {
+    window.location.href = "../dama.html?room=" + roomId;
+  }, 1000);
+});
+
 </script>
 
 </body>

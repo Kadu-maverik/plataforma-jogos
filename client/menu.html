@@ -202,17 +202,23 @@ const user = localStorage.getItem("username");
 if(user){
   document.getElementById("userBox").innerText = user;
 }
-
-// funções
+//Rotas dos jogos
 const gamesRoutes = {
   dama: "games/dama.html",
-  xadrez: "games/xadrez/lobby.html",
-  domino: "games/domino/lobby.html",
-  velha: "games/velha/lobby.html"
+  xadrez: "games/xadrez.html",
+  domino: "games/domino.html",
+  velha: "games/velha.html"
 };
 
-function play(game){
-  window.location.href = gamesRoutes[game];
+function play(game) {
+  const rota = gamesRoutes[game];
+
+  if (!rota) {
+    alert("Jogo não encontrado.");
+    return;
+  }
+
+  window.location.href = rota;
 }
 
 
