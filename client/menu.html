@@ -2,56 +2,66 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Game Menu</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: Arial;
+  font-family:'Inter',sans-serif;
 }
 
 body{
   display:flex;
-  height:100vh;
+  min-height:100vh;
   background: radial-gradient(circle at top,#0f172a,#020617);
   color:white;
+  overflow:hidden;
 }
 
 /* SIDEBAR */
 .sidebar{
-  width:220px;
-  background:#020617;
+  width:240px;
+  background:rgba(2,6,23,0.85);
+  backdrop-filter: blur(10px);
   padding:20px;
   border-right:1px solid #1e293b;
+  display:flex;
+  flex-direction:column;
 }
 
 .sidebar h2{
-  margin-bottom:20px;
   color:#8b5cf6;
+  margin-bottom:20px;
+  font-size:20px;
 }
 
-.sidebar button{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
+.nav-btn{
+  padding:12px;
+  margin:6px 0;
   background:transparent;
   border:1px solid #334155;
   color:white;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
   transition:0.3s;
+  text-align:left;
 }
 
-.sidebar button:hover{
+.nav-btn:hover{
   background:#8b5cf6;
+  transform:translateX(5px);
 }
 
-/* CONTEÚDO */
+/* MAIN */
 .main{
   flex:1;
   padding:30px;
+  overflow-y:auto;
 }
 
 /* HEADER */
@@ -62,60 +72,78 @@ body{
   margin-bottom:30px;
 }
 
-.profile{
-  background:#020617;
-  padding:10px 20px;
-  border-radius:10px;
-  border:1px solid #334155;
+.header h1{
+  font-size:28px;
+  animation:fadeIn 0.8s ease;
 }
 
-/* GRID DE JOGOS */
+.profile{
+  padding:10px 18px;
+  border-radius:12px;
+  background:rgba(2,6,23,0.7);
+  border:1px solid #334155;
+  font-weight:600;
+}
+
+/* GAMES GRID */
 .games{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
   gap:20px;
 }
 
 .card{
-  background:#020617;
+  background:rgba(2,6,23,0.75);
   border:1px solid #334155;
-  border-radius:15px;
-  padding:20px;
+  border-radius:16px;
+  padding:15px;
   text-align:center;
   transition:0.3s;
+  position:relative;
+  overflow:hidden;
 }
 
 .card:hover{
-  transform:translateY(-5px);
-  box-shadow:0 0 15px #8b5cf6;
+  transform:translateY(-8px);
+  box-shadow:0 0 25px rgba(139,92,246,0.5);
+  border-color:#8b5cf6;
 }
 
 .card img{
   width:100%;
-  border-radius:10px;
+  border-radius:12px;
+  height:120px;
+  object-fit:cover;
 }
 
 .card h3{
   margin:10px 0;
 }
 
-.card button{
+.play-btn{
   margin-top:10px;
   padding:10px;
   width:100%;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   background:linear-gradient(90deg,#22c55e,#15803d);
   color:white;
   cursor:pointer;
+  transition:0.3s;
+  font-weight:600;
+}
+
+.play-btn:hover{
+  filter:brightness(1.2);
+  transform:scale(1.03);
 }
 
 /* LOBBY */
 .lobby{
   margin-top:40px;
-  background:#020617;
+  background:rgba(2,6,23,0.75);
   padding:20px;
-  border-radius:15px;
+  border-radius:16px;
   border:1px solid #334155;
   display:flex;
   justify-content:space-between;
@@ -123,33 +151,67 @@ body{
 }
 
 .lobby button{
-  padding:10px 20px;
+  padding:12px 20px;
   background:gold;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
+  font-weight:700;
+  transition:0.3s;
+}
+
+.lobby button:hover{
+  transform:scale(1.05);
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* RESPONSIVO */
+@media(max-width:768px){
+  body{
+    flex-direction:column;
+  }
+
+  .sidebar{
+    width:100%;
+    flex-direction:row;
+    overflow-x:auto;
+  }
+
+  .nav-btn{
+    flex:1;
+    text-align:center;
+  }
+
+  .games{
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  }
 }
 </style>
-
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>🎮 Game</h2>
-  <button>Menu</button>
-  <button>Perfil</button>
-  <button>Amigos</button>
-  <button>Ranking</button>
-  <button onclick="logout()">Sair</button>
+  <h2>🎮 Plataforma</h2>
+
+  <button class="nav-btn">Menu</button>
+  <button class="nav-btn">Perfil</button>
+  <button class="nav-btn">Amigos</button>
+  <button class="nav-btn">Ranking</button>
+  <button class="nav-btn" onclick="logout()">Sair</button>
 </div>
 
-<!-- CONTEÚDO -->
+<!-- MAIN -->
 <div class="main">
 
   <div class="header">
-    <h1>Bem-vindo!</h1>
+    <h1>Bem-vindo à Arena 🎮</h1>
     <div class="profile" id="userBox">Player</div>
   </div>
 
@@ -158,26 +220,26 @@ body{
 
     <div class="card">
       <img src="https://i.imgur.com/2RXYO2v.png">
-      <h3>Dama</h3>
-      <button onclick="play('dama')">JOGAR</button>
+      <h3>Damas</h3>
+      <button class="play-btn" onclick="play('dama')">JOGAR</button>
     </div>
 
     <div class="card">
       <img src="https://i.imgur.com/n6bU0Jk.png">
       <h3>Xadrez</h3>
-      <button onclick="play('xadrez')">JOGAR</button>
+      <button class="play-btn" onclick="play('xadrez')">JOGAR</button>
     </div>
 
     <div class="card">
       <img src="https://i.imgur.com/j6Y9X8K.png">
       <h3>Dominó</h3>
-      <button onclick="play('domino')">JOGAR</button>
+      <button class="play-btn" onclick="play('domino')">JOGAR</button>
     </div>
 
     <div class="card">
       <img src="https://i.imgur.com/2X6sY3C.png">
       <h3>Velha</h3>
-      <button onclick="play('velha')">JOGAR</button>
+      <button class="play-btn" onclick="play('velha')">JOGAR</button>
     </div>
 
   </div>
@@ -185,45 +247,46 @@ body{
   <!-- LOBBY -->
   <div class="lobby">
     <div>
-      <h2>Entrar no Lobby</h2>
-      <p>Jogue com amigos online</p>
+      <h2>🎯 Lobby Multiplayer</h2>
+      <p>Jogue em tempo real com Socket.IO</p>
     </div>
 
-    <button onclick="goLobby()">IR PARA O LOBBY →</button>
+    <button onclick="goLobby()">ENTRAR →</button>
   </div>
 
 </div>
 
 <script>
 
-// pegar username do login
+// USER
 const user = localStorage.getItem("username");
-
 if(user){
   document.getElementById("userBox").innerText = user;
 }
-//Rotas dos jogos
+
+// ROTAS (alinhado com tua estrutura)
 const gamesRoutes = {
-  dama: "games/dama.html",
-  xadrez: "games/xadrez.html",
-  domino: "games/domino.html",
-  velha: "games/velha.html"
+  dama: "dama.html",
+  xadrez: "xadrez.html",
+  domino: "domino.html",
+  velha: "velha.html"
 };
 
-function play(game) {
-  const rota = gamesRoutes[game];
+function play(game){
+  const route = gamesRoutes[game];
 
-  if (!rota) {
-    alert("Jogo não encontrado.");
+  if(!route){
+    alert("Jogo não encontrado!");
     return;
   }
 
-  window.location.href = rota;
+  // futuro: integrar lobbySocket antes de entrar no jogo
+  window.location.href = route;
 }
 
-
 function goLobby(){
- window.location.href = "client/lobby.html";
+  // futuro: socket.emit("joinLobby")
+  window.location.href = "lobby.html";
 }
 
 function logout(){

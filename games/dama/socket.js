@@ -1,247 +1,136 @@
-const Dama = require("./engine");
+// games/dama/socket.js
 
+const DamaEngine = require('./engine');
+const matchManager = require('../../core/matchManager');
 
-const partidas = {};
-const jogadores = {};
+/**
+ * Regista os eventos do jogo de Dama para um socket específico
+ * @param {Server} io
+ * @param {Socket} socket
+ */
+function registerDamaSocket(io, socket) {
 
+    /**
+     * 🎯 Entrar numa partida de dama
+     */
+    socket.on('dama:joinMatch', ({ matchId, userId }) => {
+        try {
+            const match = matchManager.getMatch(matchId);
 
+            if (!match) {
+                return socket.emit('dama:error', { message: 'Partida não encontrada' });
+            }
 
-function damaSocket(io){
+            socket.join(matchId);
 
+            // Associa socket ao jogador
+            matchManager.attachSocket(matchId, userId, socket.id);
 
-io.on("connection",(socket)=>{
+            // Se o jogo ainda não iniciou, inicia engine
+            if (!match.engine) {
+                match.engine = new DamaEngine(match.players);
+            }
 
+            io.to(matchId).emit('dama:state', {
+                board: match.engine.getBoard(),
+                turn: match.engine.getCurrentPlayer()
+            });
 
-console.log(
-"Jogador dama conectado:",
-socket.id
-);
+        } catch (err) {
+            console.error(err);
+            socket.emit('dama:error', { message: 'Erro ao entrar na partida' });
+        }
+    });
 
+    /**
+     * ♟️ Jogada
+     */
+    socket.on('dama:move', ({ matchId, from, to, userId }) => {
+        try {
+            const match = matchManager.getMatch(matchId);
 
+            if (!match || !match.engine) {
+                return socket.emit('dama:error', { message: 'Partida inválida' });
+            }
 
-socket.on(
-"entrarDama",
-(sala)=>{
+            // Valida se é o jogador certo
+            if (!match.engine.isPlayerTurn(userId)) {
+                return socket.emit('dama:error', { message: 'Não é o teu turno' });
+            }
 
+            // Executa jogada no engine
+            const result = match.engine.move(from, to);
 
-socket.join(sala);
+            if (!result.success) {
+                return socket.emit('dama:error', { message: result.message });
+            }
 
+            // Atualiza estado para todos
+            io.to(matchId).emit('dama:update', {
+                board: match.engine.getBoard(),
+                turn: match.engine.getCurrentPlayer(),
+                lastMove: { from, to }
+            });
 
+            /**
+             * 🏁 Verifica fim de jogo
+             */
+            if (match.engine.isGameOver()) {
+                const winner = match.engine.getWinner();
 
-if(!jogadores[sala]){
+                io.to(matchId).emit('dama:gameOver', {
+                    winner
+                });
 
-jogadores[sala]=[];
+                // Guarda resultado no sistema
+                matchManager.finishMatch(matchId, winner);
+            }
 
+        } catch (err) {
+            console.error(err);
+            socket.emit('dama:error', { message: 'Erro ao processar jogada' });
+        }
+    });
+
+    /**
+     * 🚪 Sair da partida
+     */
+    socket.on('dama:leave', ({ matchId, userId }) => {
+        try {
+            socket.leave(matchId);
+
+            matchManager.removePlayer(matchId, userId);
+
+            io.to(matchId).emit('dama:playerLeft', {
+                userId
+            });
+
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
+    /**
+     * ❌ Desconexão
+     */
+    socket.on('disconnect', () => {
+        try {
+            const matchId = matchManager.findMatchBySocket(socket.id);
+
+            if (!matchId) return;
+
+            const userId = matchManager.getUserBySocket(socket.id);
+
+            matchManager.removePlayer(matchId, userId);
+
+            io.to(matchId).emit('dama:playerDisconnected', {
+                userId
+            });
+
+        } catch (err) {
+            console.error(err);
+        }
+    });
 }
 
-
-
-if(jogadores[sala].length >= 2){
-
-
-socket.emit(
-"erroDama",
-"Sala cheia"
-);
-
-
-return;
-
-}
-
-
-
-let cor =
-jogadores[sala].length === 0
-?
-"branco"
-:
-"preto";
-
-
-
-
-jogadores[sala].push({
-
-id:socket.id,
-
-cor:cor
-
-});
-
-
-
-
-if(!partidas[sala]){
-
-
-partidas[sala]=new Dama();
-
-
-}
-
-
-
-
-socket.emit(
-"suaCor",
-cor
-);
-
-
-
-
-
-io.to(sala).emit(
-"quantidadeJogadores",
-jogadores[sala].length
-);
-
-
-
-
-
-if(jogadores[sala].length === 2){
-
-
-io.to(sala).emit(
-"jogadoresProntos",
-{
-codigo:sala
-}
-);
-
-
-
-io.to(sala).emit(
-"estadoDama",
-partidas[sala]
-);
-
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-socket.on(
-"movimentoDama",
-(data)=>{
-
-
-let jogo =
-partidas[data.sala];
-
-
-
-if(!jogo)
-return;
-
-
-
-
-let jogador =
-jogadores[data.sala]
-.find(
-j=>j.id===socket.id
-);
-
-
-
-if(!jogador)
-return;
-
-
-
-
-
-if(jogo.turno !== jogador.cor){
-
-
-socket.emit(
-"erroDama",
-"Não é sua vez"
-);
-
-
-return;
-
-}
-
-
-
-
-
-let sucesso =
-jogo.mover(
-data.origem,
-data.destino
-);
-
-
-
-
-if(sucesso){
-
-
-io.to(data.sala)
-.emit(
-"estadoDama",
-jogo
-);
-
-
-
-}
-
-
-
-
-});
-
-
-
-
-
-
-socket.on(
-"disconnect",
-()=>{
-
-
-for(let sala in jogadores){
-
-
-jogadores[sala] =
-jogadores[sala]
-.filter(
-j=>j.id !== socket.id
-);
-
-
-
-}
-
-
-
-});
-
-
-
-
-});
-
-
-}
-
-
-
-module.exports = damaSocket;
+module.exports = registerDamaSocket;

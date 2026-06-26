@@ -1,146 +1,222 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<title>Register - Game System</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Criar Conta | Game Platform</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: Arial;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
-body{
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background: radial-gradient(circle at top,#0b1220,#020617);
-  color:white;
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top, #1b2735, #090a0f);
+    overflow: hidden;
 }
 
-.box{
-  width:380px;
-  padding:30px;
-  border-radius:15px;
-  background: rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  box-shadow:0 0 25px rgba(139,92,246,0.2);
-  text-align:center;
+/* animação de fundo */
+.bg {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #000000);
+    animation: moveBG 12s ease infinite;
+    z-index: 0;
+    opacity: 0.6;
 }
 
-h1{
-  margin-bottom:20px;
-  color:#a855f7;
+@keyframes moveBG {
+    0% { transform: translate(0,0); }
+    50% { transform: translate(-10%, -10%); }
+    100% { transform: translate(0,0); }
 }
 
-input{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.2);
-  background:transparent;
-  color:white;
-  outline:none;
+.container {
+    position: relative;
+    z-index: 1;
+    width: 380px;
+    padding: 35px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    animation: fadeIn 1s ease;
 }
 
-input:focus{
-  border-color:#a855f7;
-  box-shadow:0 0 10px #a855f7;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-button{
-  width:100%;
-  padding:12px;
-  margin-top:15px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(90deg,#a855f7,#6d28d9);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
+h1 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 20px;
+    font-weight: 700;
 }
 
-button:hover{
-  transform:scale(1.03);
+p {
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+    margin-bottom: 20px;
 }
 
-.small{
-  margin-top:15px;
-  font-size:13px;
-  color:#aaa;
-  cursor:pointer;
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    transition: 0.3s;
+}
+
+input:focus {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.02);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0,114,255,0.6);
+}
+
+.error {
+    color: #ff4d4d;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
+
+.success {
+    color: #00ff9d;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+}
+
+.link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.link a {
+    color: #00c6ff;
+    text-decoration: none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="bg"></div>
 
-  <h1>Criar Conta</h1>
+<div class="container">
+    <h1>Criar Conta</h1>
+    <p>Junta-te à plataforma de jogos online</p>
 
-  <input id="username" placeholder="Username">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+    <input type="text" id="username" placeholder="Nome de utilizador" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Palavra-passe" />
 
-  <button onclick="register()">REGISTAR</button>
+    <button onclick="register()">REGISTAR</button>
 
-  <div class="small" onclick="goLogin()">
-    Já tens conta? Entrar
-  </div>
+    <div class="error" id="errorBox"></div>
+    <div class="success" id="successBox"></div>
 
+    <div class="link">
+        Já tens conta? <a href="login.html">Fazer login</a>
+    </div>
 </div>
 
 <script>
+async function register() {
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-async function register(){
+    const errorBox = document.getElementById("errorBox");
+    const successBox = document.getElementById("successBox");
 
-  const username = document.getElementById("username").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+    errorBox.style.display = "none";
+    successBox.style.display = "none";
 
-  if(!username || !email || !password){
-    alert("Preenche todos os campos!");
-    return;
-  }
-
-  try{
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username,
-        email,
-        password
-      })
-    });
-
-    const data = await res.json();
-
-    if(res.ok){
-      alert("Conta criada com sucesso!");
-      window.location.href = "login.html";
-    }else{
-      alert(data.message || "Erro ao registar");
+    if (!username || !email || !password) {
+        errorBox.innerText = "Preenche todos os campos!";
+        errorBox.style.display = "block";
+        return;
     }
 
-  }catch(err){
-    alert("Erro de servidor");
-  }
-}
+    if (password.length < 6) {
+        errorBox.innerText = "A password deve ter pelo menos 6 caracteres.";
+        errorBox.style.display = "block";
+        return;
+    }
 
-function goLogin(){
-  window.location.href = "login.html";
-}
+    try {
+        const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username,
+                email,
+                password
+            })
+        });
 
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message || "Erro ao registar conta");
+        }
+
+        successBox.innerText = "Conta criada com sucesso! Redirecionando...";
+        successBox.style.display = "block";
+
+        localStorage.setItem("token", data.token);
+
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1500);
+
+    } catch (err) {
+        errorBox.innerText = err.message;
+        errorBox.style.display = "block";
+    }
+}
 </script>
 
 </body>

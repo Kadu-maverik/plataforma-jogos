@@ -2,215 +2,209 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Lobby Multiplayer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lobby | Game Platform</title>
 
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Inter', sans-serif;
 }
 
 body{
-  background:#0b0f1a;
-  color:white;
-  display:flex;
-  height:100vh;
+    background: radial-gradient(circle at top, #1b1f3a, #0b0d1a);
+    color:#fff;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-/* MENU ESQUERDA */
-.sidebar{
-  width:220px;
-  background:#0f1628;
-  padding:20px;
+/* CONTAINER */
+.lobby-container{
+    width:90%;
+    max-width:1000px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
 }
 
-.sidebar h2{
-  margin-bottom:30px;
-  color:#7c5cff;
+/* PAINEL */
+.panel{
+    background: rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:15px;
+    padding:20px;
+    backdrop-filter: blur(10px);
 }
 
-.menu button{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  background:#1a2440;
-  border:none;
-  color:white;
-  cursor:pointer;
-  border-radius:8px;
+/* TITULO */
+h2{
+    margin-bottom:15px;
+    font-size:20px;
 }
 
-.menu button:hover{
-  background:#7c5cff;
-}
-
-/* CENTRO */
-.main{
-  flex:1;
-  padding:20px;
-}
-
-.cards{
-  display:flex;
-  gap:15px;
-}
-
-.card{
-  flex:1;
-  background:#121a30;
-  padding:20px;
-  border-radius:12px;
-}
-
-.card button{
-  margin-top:10px;
-  padding:10px;
-  width:100%;
-  background:#7c5cff;
-  border:none;
-  color:white;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-/* SALAS */
-.rooms{
-  margin-top:20px;
-}
-
-.room{
-  background:#121a30;
-  padding:10px;
-  margin:10px 0;
-  border-radius:8px;
-  display:flex;
-  justify-content:space-between;
-}
-
-/* DIREITA */
-.right{
-  width:300px;
-  background:#0f1628;
-  padding:20px;
-}
-
-.chat{
-  height:60%;
-  overflow:auto;
-  background:#121a30;
-  padding:10px;
-  border-radius:8px;
-}
-
+/* INPUTS */
 input{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+    border:none;
+    border-radius:8px;
+    outline:none;
+}
+
+/* BOTÕES */
+button{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.03);
+}
+
+.primary{ background:#4f46e5; color:#fff; }
+.success{ background:#10b981; color:#fff; }
+.danger{ background:#ef4444; color:#fff; }
+
+/* LISTA */
+.list{
+    margin-top:10px;
+    max-height:200px;
+    overflow:auto;
+}
+
+.player{
+    padding:8px;
+    margin-bottom:5px;
+    background:rgba(255,255,255,0.05);
+    border-radius:6px;
+}
+
+/* STATUS */
+.status{
+    margin-top:10px;
+    padding:10px;
+    background:rgba(255,255,255,0.05);
+    border-radius:8px;
+    text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-  <h2>GameHub</h2>
-  <div class="menu">
-    <button>Início</button>
-    <button>Jogar</button>
-    <button>Perfil</button>
-  </div>
-</div>
+<div class="lobby-container">
 
-<div class="main">
+    <!-- CRIAR / ENTRAR SALA -->
+    <div class="panel">
+        <h2>🎮 Lobby Multiplayer</h2>
 
-  <div class="cards">
-    <div class="card">
-      <h3>Criar Sala</h3>
-      <button onclick="criarSala()">Criar</button>
+        <input id="username" placeholder="Nome de utilizador">
+        <input id="roomId" placeholder="ID da sala">
+
+        <button class="primary" onclick="createRoom()">Criar Sala</button>
+        <button class="success" onclick="joinRoom()">Entrar na Sala</button>
+
+        <div class="status" id="status">Aguardando ação...</div>
     </div>
 
-    <div class="card">
-      <h3>Entrar em Sala</h3>
-      <input id="roomId" placeholder="ID da sala">
-      <button onclick="entrarSala()">Entrar</button>
+    <!-- JOGADORES -->
+    <div class="panel">
+        <h2>👥 Jogadores na Sala</h2>
+        <div id="players" class="list"></div>
+
+        <button class="danger" onclick="leaveRoom()">Sair da Sala</button>
     </div>
-  </div>
 
-  <div class="rooms" id="rooms"></div>
-
-</div>
-
-<div class="right">
-  <h3>Chat</h3>
-  <div class="chat" id="chat"></div>
-
-  <input id="msg" placeholder="mensagem..." onkeypress="if(event.key==='Enter')sendMsg()">
 </div>
 
 <script>
 const socket = io();
 
+let currentRoom = null;
+
 /* CRIAR SALA */
-function criarSala(){
-  socket.emit("createRoom", "dama");
+function createRoom(){
+    const username = document.getElementById("username").value;
+    const roomId = document.getElementById("roomId").value;
+
+    if(!username || !roomId){
+        alert("Preenche todos os campos!");
+        return;
+    }
+
+    socket.emit("createRoom", { username, roomId });
+
+    currentRoom = roomId;
+    setStatus("Sala criada: " + roomId);
 }
 
 /* ENTRAR NA SALA */
-function entrarSala(){
-  const id = document.getElementById("roomId").value;
-  socket.emit("joinRoom", id);
+function joinRoom(){
+    const username = document.getElementById("username").value;
+    const roomId = document.getElementById("roomId").value;
+
+    if(!username || !roomId){
+        alert("Preenche todos os campos!");
+        return;
+    }
+
+    socket.emit("joinRoom", { username, roomId });
+
+    currentRoom = roomId;
+    setStatus("Entrou na sala: " + roomId);
 }
 
-/* LISTA SALAS */
-socket.on("roomsUpdate", (rooms)=>{
-  const div = document.getElementById("rooms");
-  div.innerHTML = "";
+/* SAIR DA SALA */
+function leaveRoom(){
+    if(!currentRoom) return;
 
-  rooms.forEach(r=>{
-    div.innerHTML += `
-      <div class="room">
-        <span>Sala: ${r.id} (${r.players}/2)</span>
-        <button onclick="socket.emit('joinRoom','${r.id}')">Entrar</button>
-      </div>
-    `;
-  });
-});
+    socket.emit("leaveRoom", { roomId: currentRoom });
 
-/* CHAT */
-function sendMsg(){
-  const msg = document.getElementById("msg").value;
-  socket.emit("chat", msg);
-  document.getElementById("msg").value = "";
+    document.getElementById("players").innerHTML = "";
+    setStatus("Saiu da sala");
+
+    currentRoom = null;
 }
 
-socket.on("chat", (data)=>{
-  document.getElementById("chat").innerHTML += `<div><b>${data.user}:</b> ${data.msg}</div>`;
+/* ATUALIZAR LISTA DE JOGADORES */
+socket.on("roomPlayers", (players) => {
+    const container = document.getElementById("players");
+    container.innerHTML = "";
+
+    players.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "player";
+        div.innerText = p;
+        container.appendChild(div);
+    });
 });
 
-let currentRoom = null;
+/* INICIAR JOGO */
+socket.on("startGame", () => {
+    setStatus("Jogo a iniciar...");
 
-/* 🔵 SALA CRIADA */
-socket.on("roomCreated", (roomId) => {
-  currentRoom = roomId;
-  alert("Sala criada! ID: " + roomId);
+    setTimeout(() => {
+        window.location.href = "/menu.html";
+    }, 1500);
 });
 
-/* 🔥 SALA PRONTA (2 jogadores) */
-socket.on("roomReady", (roomId) => {
-  alert("Jogadores prontos! A entrar no jogo...");
-
-  setTimeout(() => {
-    window.location.href = "../dama.html?room=" + roomId;
-  }, 1000);
-});
-
+/* STATUS */
+function setStatus(text){
+    document.getElementById("status").innerText = text;
+}
 </script>
 
 </body>

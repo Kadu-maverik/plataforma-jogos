@@ -1,377 +1,302 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt">
 <head>
-
-<title>Damas</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dama Online</title>
 
 <script src="/socket.io/socket.io.js"></script>
 
-
 <style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Inter', sans-serif;
+}
 
 body{
-
-background:#111;
-color:white;
-font-family:Arial;
-text-align:center;
-
+    background: radial-gradient(circle at top, #1b1f2a, #0d0f14);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
 }
 
-
-#tabuleiro{
-
-width:480px;
-height:480px;
-
-margin:auto;
-
-display:grid;
-
-grid-template-columns:repeat(8,1fr);
-
+/* HEADER */
+header{
+    width:100%;
+    padding:20px;
+    text-align:center;
+    font-size:22px;
+    font-weight:700;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
-
-.casa{
-
-width:60px;
-height:60px;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-font-size:35px;
-
+/* STATUS */
+#status{
+    margin:15px;
+    font-size:14px;
+    opacity:0.8;
 }
 
-
-.preta{
-
-background:#333;
-
+/* BOARD */
+#board{
+    display:grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    gap:0;
+    margin-top:20px;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 30px rgba(0,0,0,0.6);
 }
 
-
-.branca{
-
-background:#eee;
-
-color:black;
-
+.cell{
+    width:60px;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
-
-.peca{
-
-width:40px;
-height:40px;
-
-border-radius:50%;
-
-background:red;
-
+.black{
+    background:#2c2f3a;
 }
 
-
-.branco{
-
-background:white;
-
+.white{
+    background:#e9ecef;
 }
 
+.piece{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    cursor:pointer;
+    transition:0.2s;
+}
 
+.piece:hover{
+    transform:scale(1.1);
+}
 
+.red{
+    background: radial-gradient(circle, #ff4b4b, #b30000);
+}
+
+.blue{
+    background: radial-gradient(circle, #4b8bff, #0033b3);
+}
+
+.selected{
+    outline:3px solid yellow;
+}
+
+/* INFO PANEL */
+#info{
+    margin-top:20px;
+    display:flex;
+    gap:20px;
+    font-size:14px;
+    opacity:0.9;
+}
+
+button{
+    margin-top:15px;
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#4b8bff;
+    color:white;
+    font-weight:600;
+    transition:0.2s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
 </style>
-
 </head>
-
 
 <body>
 
+<header>🎮 Dama Online</header>
 
-<h1>♟ Damas</h1>
+<div id="status">A ligar ao servidor...</div>
 
+<div id="info">
+    <div>🧑 Jogador: <span id="playerColor">---</span></div>
+    <div>🎯 Turno: <span id="turn">---</span></div>
+</div>
 
-<h2 id="status">
-Aguardando jogadores...
-</h2>
+<div id="board"></div>
 
-<h3 id="cor"></h3>
-
-
-
-<div id="tabuleiro"></div>
-
-
+<button onclick="leaveGame()">Sair da Partida</button>
 
 <script>
+const socket = io();
+const board = document.getElementById("board");
+const statusText = document.getElementById("status");
 
+let selectedPiece = null;
+let myColor = null;
+let currentTurn = "red";
 
-const socket =
-io();
+/* -------------------------
+   CRIAR TABULEIRO
+--------------------------*/
+function createBoard(){
+    board.innerHTML = "";
 
+    for(let row=0; row<8; row++){
+        for(let col=0; col<8; col++){
 
-let sala =
-new URLSearchParams(
-window.location.search
-)
-.get("sala");
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
 
-if(!sala){
+            if((row + col) % 2 === 0){
+                cell.classList.add("white");
+            } else {
+                cell.classList.add("black");
+            }
 
-alert("Sem sala");
-throw new Error("Sem sala");
+            cell.dataset.row = row;
+            cell.dataset.col = col;
 
+            cell.addEventListener("click", () => handleCellClick(row, col));
+
+            board.appendChild(cell);
+        }
+    }
 }
 
+/* -------------------------
+   INICIALIZAR PEÇAS
+--------------------------*/
+function initPieces(){
+    const cells = document.querySelectorAll(".cell");
 
+    cells.forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
 
-socket.emit(
-"entrarDama",
-sala
-);
+        // peças vermelhas
+        if(cell.classList.contains("black") && row < 3){
+            const piece = document.createElement("div");
+            piece.classList.add("piece", "red");
+            piece.dataset.color = "red";
+            cell.appendChild(piece);
+        }
 
+        // peças azuis
+        if(cell.classList.contains("black") && row > 4){
+            const piece = document.createElement("div");
+            piece.classList.add("piece", "blue");
+            piece.dataset.color = "blue";
+            cell.appendChild(piece);
+        }
+    });
+}
 
+/* -------------------------
+   CLIQUE NAS CASAS
+--------------------------*/
+function handleCellClick(row, col){
+    const cell = getCell(row, col);
+    const piece = cell.querySelector(".piece");
 
-let selecionada=null;
+    if(selectedPiece){
+        movePiece(cell);
+        return;
+    }
 
-let minhaCor = "";
+    if(piece && piece.dataset.color === myColor){
+        selectedPiece = piece;
+        piece.classList.add("selected");
+    }
+}
 
-let jogoAtual = null;
+/* -------------------------
+   MOVIMENTO
+--------------------------*/
+function movePiece(targetCell){
+    if(!selectedPiece) return;
 
+    const oldCell = selectedPiece.parentElement;
 
+    targetCell.appendChild(selectedPiece);
+    selectedPiece.classList.remove("selected");
 
-socket.on(
-"suaCor",
-(cor)=>{
+    socket.emit("movePiece", {
+        from: {
+            row: oldCell.dataset.row,
+            col: oldCell.dataset.col
+        },
+        to: {
+            row: targetCell.dataset.row,
+            col: targetCell.dataset.col
+        },
+        color: myColor
+    });
 
+    selectedPiece = null;
+}
 
-minhaCor = cor;
-
-
-document.getElementById("cor")
-.innerHTML =
-"Você joga com: "
-+cor;
-
-
+/* -------------------------
+   SOCKET EVENTS
+--------------------------*/
+socket.on("connect", () => {
+    statusText.innerText = "Conectado ao servidor ✔";
+    socket.emit("joinDama");
 });
 
-
-function criarTabuleiro(){
-
-
-let board =
-document.getElementById("tabuleiro");
-
-
-board.innerHTML="";
-
-
-
-for(let l=0;l<8;l++){
-
-
-for(let c=0;c<8;c++){
-
-
-
-let casa =
-document.createElement("div");
-
-
-
-casa.className =
-"casa " +
-((l+c)%2===0 ? "branca" : "preta");
-
-
-
-casa.onclick = ()=>{
-
-
-if(selecionada){
-
-
-socket.emit(
-"movimentoDama",
-{
-
-sala,
-
-origem:selecionada,
-
-destino:{
-l:l,
-c:c
-}
-
+socket.on("assignColor", (color) => {
+    myColor = color;
+    document.getElementById("playerColor").innerText = color;
 });
 
-
-selecionada=null;
-
-
-}
-
-
-};
-
-
-
-board.appendChild(casa);
-
-
-
-}
-
-
-}
-
-
-}
-
-
-
-
-socket.on(
-"estadoDama",
-(jogo)=>{
-
-    jogoAtual = jogo;
-
-    console.log("Recebi jogo:", jogo);
-
-
-criarTabuleiro();
-
-
-
-let casas =
-document.querySelectorAll(
-".casa"
-);
-
-
-
-for(
-let l=0;l<8;l++
-){
-
-for(
-let c=0;c<8;c++
-){
-
-
-let peca =
-jogo.tabuleiro[l][c];
-
-
-if(peca){
-
-
-let div =
-document.createElement(
-"div"
-);
-
-
-
-div.className =
-"peca " +
-peca;
-
-
-div.onclick=(e)=>{
-
-
-e.stopPropagation();
-
-
-
-if(jogoAtual.turno !== minhaCor){
-
-document.getElementById("status")
-.innerHTML =
-"Não é sua vez";
-
-return;
-
-}
-
-
-
-selecionada={
-
-l:l,
-
-c:c
-
-};
-
-
-document.getElementById(
-"status"
-).innerHTML =
-"Peça selecionada";
-
-
-};
-
-
-
-casas[l*8+c]
-.appendChild(div);
-
-
-
-}
-
-
-}
-
-
-}
-
-
-
-if(jogo.fim){
-
-
-document.getElementById("status")
-.innerHTML =
-"🏆 Fim da partida";
-
-
-}else{
-
-
-document.getElementById("status")
-.innerHTML =
-"Turno: "
-+
-jogo.turno;
-
-
-}
-
-
-
+socket.on("gameStart", () => {
+    createBoard();
+    initPieces();
 });
 
+socket.on("updateTurn", (turn) => {
+    currentTurn = turn;
+    document.getElementById("turn").innerText = turn;
+});
 
+socket.on("opponentMove", (data) => {
+    const from = getCell(data.from.row, data.from.col);
+    const to = getCell(data.to.row, data.to.col);
 
+    const piece = from.querySelector(".piece");
+    if(piece){
+        to.appendChild(piece);
+    }
+});
 
-criarTabuleiro();
+/* -------------------------
+   HELPERS
+--------------------------*/
+function getCell(row, col){
+    return document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+}
 
+/* -------------------------
+   SAIR
+--------------------------*/
+function leaveGame(){
+    socket.emit("leaveGame");
+    window.location.href = "menu.html";
+}
 
-
+/* START */
+createBoard();
 </script>
 
-
 </body>
-
 </html>

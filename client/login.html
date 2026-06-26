@@ -3,200 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game System Login</title>
+<title>Login | Game Platform</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: Arial, sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter', sans-serif;
 }
 
 body{
-  height:100vh;
-  display:flex;
-  background: radial-gradient(circle at top, #1a1f3a, #050505);
-  color:white;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: radial-gradient(circle at top, #1a1f2e, #0d0f16);
+    overflow:hidden;
 }
 
-/* LADO ESQUERDO */
-.left{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:80px;
+/* Fundo animado */
+.background{
+    position:absolute;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:0;
 }
 
-.logo{
-  color:#9b5cff;
-  font-weight:bold;
-  margin-bottom:40px;
+.circle{
+    position:absolute;
+    border-radius:50%;
+    background: rgba(0, 255, 200, 0.08);
+    animation: float 10s infinite ease-in-out;
 }
 
-.left h1{
-  font-size:48px;
+.circle:nth-child(1){ width:200px; height:200px; top:10%; left:15%; }
+.circle:nth-child(2){ width:300px; height:300px; bottom:10%; right:10%; animation-duration:14s; }
+.circle:nth-child(3){ width:120px; height:120px; top:60%; left:70%; animation-duration:8s; }
+
+@keyframes float{
+    0%{ transform: translateY(0px); }
+    50%{ transform: translateY(-30px); }
+    100%{ transform: translateY(0px); }
 }
 
-.left span{
-  color:#9b5cff;
+/* Caixa login */
+.login-container{
+    position:relative;
+    z-index:2;
+    width:380px;
+    padding:40px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(15px);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: fadeIn 1s ease;
 }
 
-.left p{
-  margin-top:20px;
-  color:#aaa;
+@keyframes fadeIn{
+    from{ opacity:0; transform: translateY(20px); }
+    to{ opacity:1; transform: translateY(0); }
 }
 
-/* LADO DIREITO */
-.right{
-  flex:1;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+h2{
+    color:#00ffd5;
+    text-align:center;
+    margin-bottom:25px;
+    font-weight:700;
+    letter-spacing:1px;
 }
 
-.card{
-  width:380px;
-  padding:30px;
-  border-radius:15px;
-  background: rgba(255,255,255,0.03);
-  border:1px solid rgba(155,92,255,0.3);
-  box-shadow: 0 0 20px rgba(155,92,255,0.2);
+.input-box{
+    margin-bottom:15px;
 }
 
-.card h2{
-  text-align:center;
-  margin-bottom:10px;
+input{
+    width:100%;
+    padding:12px 15px;
+    border:none;
+    outline:none;
+    border-radius:10px;
+    background: rgba(255,255,255,0.08);
+    color:#fff;
+    font-size:14px;
+    transition:0.3s;
 }
 
-.card p{
-  text-align:center;
-  color:#aaa;
-  margin-bottom:20px;
+input:focus{
+    background: rgba(0,255,213,0.1);
+    box-shadow:0 0 10px rgba(0,255,213,0.4);
 }
 
-.input{
-  margin-bottom:15px;
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background: linear-gradient(90deg, #00ffd5, #00a3ff);
+    color:#000;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:10px;
+    transition:0.3s;
 }
 
-.input input{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:1px solid rgba(155,92,255,0.5);
-  background:transparent;
-  color:white;
-  outline:none;
+button:hover{
+    transform: scale(1.05);
+    box-shadow:0 10px 20px rgba(0,255,213,0.3);
 }
 
-.input input:focus{
-  border-color:#9b5cff;
-  box-shadow:0 0 10px #9b5cff;
+.extra{
+    margin-top:15px;
+    text-align:center;
+    font-size:13px;
+    color:#aaa;
 }
 
-/* CHECKBOX */
-.checkbox{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:20px;
-  font-size:14px;
+.extra a{
+    color:#00ffd5;
+    text-decoration:none;
 }
 
-/* BOTÃO */
-.btn{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  background: linear-gradient(90deg,#6a00ff,#9b5cff);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
-}
-
-.btn:hover{
-  opacity:0.8;
-}
-
-/* REGISTAR */
-.register{
-  margin-top:15px;
-  text-align:center;
-  border:1px solid rgba(155,92,255,0.5);
-  padding:10px;
-  border-radius:8px;
-  cursor:pointer;
+.error{
+    color:#ff4d4d;
+    font-size:12px;
+    text-align:center;
+    margin-top:10px;
+    display:none;
 }
 </style>
-
 </head>
+
 <body>
 
-<div class="left">
-  <div class="logo">🎮 GAME SYSTEM</div>
-
-  <h1>BEM-VINDO <br> <span>AO GAME SYSTEM</span></h1>
-  <p>Entre na sua conta e mergulhe em uma experiência incrível.</p>
+<div class="background">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
 </div>
 
-<div class="right">
-  <div class="card">
+<div class="login-container">
+    <h2>LOGIN</h2>
 
-    <h2>LOGIN DO JOGADOR</h2>
-    <p>Digite seu username para continuar</p>
-
-    <div class="input">
-      <input type="text" id="username" placeholder="Digite seu username">
+    <div class="input-box">
+        <input type="text" id="username" placeholder="Username">
     </div>
 
-    <div class="checkbox">
-      <input type="checkbox" id="remember">
-      <label>Lembrar meu username</label>
+    <div class="input-box">
+        <input type="password" id="password" placeholder="Password">
     </div>
 
-    <button class="btn" onclick="login()">ENTRAR →</button>
+    <button onclick="login()">Entrar</button>
 
-    <div class="register">
-      REGISTRAR
+    <div class="error" id="error">Credenciais inválidas</div>
+
+    <div class="extra">
+        Não tens conta? <a href="register.html">Registar</a>
     </div>
-
-  </div>
 </div>
 
 <script>
+async function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const error = document.getElementById("error");
 
-// carregar username guardado
-window.onload = () => {
-  const saved = localStorage.getItem("username");
-  if(saved){
-    document.getElementById("username").value = saved;
-    document.getElementById("remember").checked = true;
-  }
+    if(!username || !password){
+        error.innerText = "Preenche todos os campos";
+        error.style.display = "block";
+        return;
+    }
+
+    try {
+        // 🔗 FUTURO BACKEND (ligação com auth/login.js via API)
+        const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if(!res.ok){
+            throw new Error("Falha no login");
+        }
+
+        const data = await res.json();
+
+        // 💾 guardar sessão
+        localStorage.setItem("user", JSON.stringify({
+            username: data.username,
+            token: data.token
+        }));
+
+        // 🚀 redirecionar para menu
+        window.location.href = "menu.html";
+
+    } catch (err) {
+        console.log(err);
+
+        // 🔄 fallback (modo offline / dev)
+        if(username.length >= 3 && password.length >= 3){
+
+            localStorage.setItem("user", JSON.stringify({
+                username: username,
+                token: "dev-token"
+            }));
+
+            window.location.href = "menu.html";
+        } else {
+            error.innerText = "Credenciais inválidas";
+            error.style.display = "block";
+        }
+    }
 }
-
-function login(){
-  const username = document.getElementById("username").value;
-  const remember = document.getElementById("remember").checked;
-
-  if(username.trim() === ""){
-    alert("Digite um username!");
-    return;
-  }
-
-  // guardar se checkbox ativo
-  if(remember){
-    localStorage.setItem("username", username);
-  }else{
-    localStorage.removeItem("username");
-  }
-
-  // redirecionar
-  window.location.href = "menu.html";
-}
-
 </script>
 
 </body>
