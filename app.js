@@ -20,9 +20,6 @@ const friendSocket = require("./sockets/friendSocket");
 
 // GAME SOCKETS
 const damaSocket = require("./games/dama/socket");
-const xadrezSocket = require("./games/xadrez/socket");
-const dominoSocket = require("./games/domino/socket");
-const velhaSocket = require("./games/velha/socket");
 
 // APP + SERVER
 const app = express();
