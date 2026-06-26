@@ -129,7 +129,6 @@ body{
   border-radius:8px;
   cursor:pointer;
 }
-
 </style>
 
 </head>
@@ -205,11 +204,15 @@ if(user){
 }
 
 // funções
-function play(game){
-  window.location.href = `games/${game}/${game}.html`;
+const gamesRoutes = {
+  dama: "games/dama.html",
+  xadrez: "games/xadrez/xadrez.html",
+  domino: "games/domino/domino.html",
+  velha: "games/velha/velha.html"
+};
 
-  // aqui você pode redirecionar depois
-  // window.location.href = game + ".html";
+function play(game){
+  window.location.href = gamesRoutes[game];
 }
 
 function goLobby(){
