@@ -206,7 +206,8 @@ if(user){
 
 // funções
 function play(game){
-  alert("Entrando no jogo: " + game);
+  window.location.href = `games/${game}/${game}.html`;
+
   // aqui você pode redirecionar depois
   // window.location.href = game + ".html";
 }
