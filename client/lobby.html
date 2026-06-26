@@ -1,146 +1,199 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt">
 <head>
-
-<title>Lobby</title>
+<meta charset="UTF-8">
+<title>Lobby Multiplayer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="/socket.io/socket.io.js"></script>
 
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial;
+}
 
+body{
+  background:#0b0f1a;
+  color:white;
+  display:flex;
+  height:100vh;
+}
+
+/* MENU ESQUERDA */
+.sidebar{
+  width:220px;
+  background:#0f1628;
+  padding:20px;
+}
+
+.sidebar h2{
+  margin-bottom:30px;
+  color:#7c5cff;
+}
+
+.menu button{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  background:#1a2440;
+  border:none;
+  color:white;
+  cursor:pointer;
+  border-radius:8px;
+}
+
+.menu button:hover{
+  background:#7c5cff;
+}
+
+/* CENTRO */
+.main{
+  flex:1;
+  padding:20px;
+}
+
+.cards{
+  display:flex;
+  gap:15px;
+}
+
+.card{
+  flex:1;
+  background:#121a30;
+  padding:20px;
+  border-radius:12px;
+}
+
+.card button{
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  background:#7c5cff;
+  border:none;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* SALAS */
+.rooms{
+  margin-top:20px;
+}
+
+.room{
+  background:#121a30;
+  padding:10px;
+  margin:10px 0;
+  border-radius:8px;
+  display:flex;
+  justify-content:space-between;
+}
+
+/* DIREITA */
+.right{
+  width:300px;
+  background:#0f1628;
+  padding:20px;
+}
+
+.chat{
+  height:60%;
+  overflow:auto;
+  background:#121a30;
+  padding:10px;
+  border-radius:8px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+</style>
 </head>
 
+<body>
 
-<body style="background:#111;color:white;text-align:center;font-family:Arial;">
+<div class="sidebar">
+  <h2>GameHub</h2>
+  <div class="menu">
+    <button>Início</button>
+    <button>Jogar</button>
+    <button>Perfil</button>
+  </div>
+</div>
 
+<div class="main">
 
+  <div class="cards">
+    <div class="card">
+      <h3>Criar Sala</h3>
+      <button onclick="criarSala()">Criar</button>
+    </div>
 
-<h1 id="titulo">
-Lobby
-</h1>
+    <div class="card">
+      <h3>Entrar em Sala</h3>
+      <input id="roomId" placeholder="ID da sala">
+      <button onclick="entrarSala()">Entrar</button>
+    </div>
+  </div>
 
+  <div class="rooms" id="rooms"></div>
 
-<button onclick="criarSala()">
-Criar Sala
-</button>
+</div>
 
+<div class="right">
+  <h3>Chat</h3>
+  <div class="chat" id="chat"></div>
 
-
-<br><br>
-
-
-<input id="codigo" placeholder="Código">
-
-
-<button onclick="entrarSala()">
-Entrar
-</button>
-
-
-
-<h2 id="status"></h2>
-
-
+  <input id="msg" placeholder="mensagem..." onkeypress="if(event.key==='Enter')sendMsg()">
+</div>
 
 <script>
-
-
 const socket = io();
 
-
-
-let jogo =
-new URLSearchParams(
-window.location.search
-)
-.get("jogo");
-
-
-
-document.getElementById("titulo")
-.innerHTML =
-"Lobby - " + jogo;
-
-
-
+/* CRIAR SALA */
 function criarSala(){
-
-
-socket.emit(
-"criarSala",
-{
-jogo:jogo
-}
-);
-
-
+  socket.emit("createRoom");
 }
 
-
-
-
-socket.on(
-"salaCriada",
-(codigo)=>{
-
-
-document.getElementById("status")
-.innerHTML =
-"Sala criada: "
-+
-codigo;
-
-
-
-});
-
-
+/* ENTRAR NA SALA */
 function entrarSala(){
-
-
-let codigo =
-document.getElementById("codigo").value;
-
-
-if(!codigo){
-
-alert("Digite o código");
-
-return;
-
+  const id = document.getElementById("roomId").value;
+  socket.emit("joinRoom", id);
 }
 
+/* LISTA SALAS */
+socket.on("roomsUpdate", (rooms)=>{
+  const div = document.getElementById("rooms");
+  div.innerHTML = "";
 
-socket.emit(
-"entrarSala",
-codigo
-);
-
-
-}
-
-
-
-
-socket.on(
-"jogadoresProntos",
-(sala)=>{
-
-
-console.log("Sala pronta:", sala);
-
-
-window.location.href =
-"/games/"+jogo+".html?sala="+sala.codigo;
-
-
+  rooms.forEach(r=>{
+    div.innerHTML += `
+      <div class="room">
+        <span>Sala: ${r.id} (${r.players}/2)</span>
+        <button onclick="socket.emit('joinRoom','${r.id}')">Entrar</button>
+      </div>
+    `;
+  });
 });
 
+/* CHAT */
+function sendMsg(){
+  const msg = document.getElementById("msg").value;
+  socket.emit("chat", msg);
+  document.getElementById("msg").value = "";
+}
 
-
+socket.on("chat", (data)=>{
+  document.getElementById("chat").innerHTML += `<div><b>${data.user}:</b> ${data.msg}</div>`;
+});
 </script>
 
-
 </body>
-
 </html>

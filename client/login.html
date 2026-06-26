@@ -1,54 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #1e1e2f;
-            color: white;
-            font-family: Arial;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game System Login</title>
 
-        .box {
-            text-align: center;
-        }
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, sans-serif;
+}
 
-        input {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            border: none;
-        }
+body{
+  height:100vh;
+  display:flex;
+  background: radial-gradient(circle at top, #1a1f3a, #050505);
+  color:white;
+}
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+/* LADO ESQUERDO */
+.left{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:80px;
+}
+
+.logo{
+  color:#9b5cff;
+  font-weight:bold;
+  margin-bottom:40px;
+}
+
+.left h1{
+  font-size:48px;
+}
+
+.left span{
+  color:#9b5cff;
+}
+
+.left p{
+  margin-top:20px;
+  color:#aaa;
+}
+
+/* LADO DIREITO */
+.right{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.card{
+  width:380px;
+  padding:30px;
+  border-radius:15px;
+  background: rgba(255,255,255,0.03);
+  border:1px solid rgba(155,92,255,0.3);
+  box-shadow: 0 0 20px rgba(155,92,255,0.2);
+}
+
+.card h2{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.card p{
+  text-align:center;
+  color:#aaa;
+  margin-bottom:20px;
+}
+
+.input{
+  margin-bottom:15px;
+}
+
+.input input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid rgba(155,92,255,0.5);
+  background:transparent;
+  color:white;
+  outline:none;
+}
+
+.input input:focus{
+  border-color:#9b5cff;
+  box-shadow:0 0 10px #9b5cff;
+}
+
+/* CHECKBOX */
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:20px;
+  font-size:14px;
+}
+
+/* BOTÃO */
+.btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background: linear-gradient(90deg,#6a00ff,#9b5cff);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.btn:hover{
+  opacity:0.8;
+}
+
+/* REGISTAR */
+.register{
+  margin-top:15px;
+  text-align:center;
+  border:1px solid rgba(155,92,255,0.5);
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+
 </head>
-
 <body>
-    <div class="box">
-        <h1>Login</h1>
 
-        <input placeholder="Email"><br>
-        <input placeholder="Password" type="password"><br>
+<div class="left">
+  <div class="logo">🎮 GAME SYSTEM</div>
 
-        <button onclick="login()">Entrar</button>
+  <h1>BEM-VINDO <br> <span>AO GAME SYSTEM</span></h1>
+  <p>Entre na sua conta e mergulhe em uma experiência incrível.</p>
+</div>
+
+<div class="right">
+  <div class="card">
+
+    <h2>LOGIN DO JOGADOR</h2>
+    <p>Digite seu username para continuar</p>
+
+    <div class="input">
+      <input type="text" id="username" placeholder="Digite seu username">
     </div>
 
-    <script>
-        function login() {
-            window.location.href = "/";
-        }
-    </script>
+    <div class="checkbox">
+      <input type="checkbox" id="remember">
+      <label>Lembrar meu username</label>
+    </div>
+
+    <button class="btn" onclick="login()">ENTRAR →</button>
+
+    <div class="register">
+      REGISTRAR
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+// carregar username guardado
+window.onload = () => {
+  const saved = localStorage.getItem("username");
+  if(saved){
+    document.getElementById("username").value = saved;
+    document.getElementById("remember").checked = true;
+  }
+}
+
+function login(){
+  const username = document.getElementById("username").value;
+  const remember = document.getElementById("remember").checked;
+
+  if(username.trim() === ""){
+    alert("Digite um username!");
+    return;
+  }
+
+  // guardar se checkbox ativo
+  if(remember){
+    localStorage.setItem("username", username);
+  }else{
+    localStorage.removeItem("username");
+  }
+
+  // redirecionar
+  window.location.href = "menu.html";
+}
+
+</script>
+
 </body>
 </html>

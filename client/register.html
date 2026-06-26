@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Register - Game System</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial;
+}
+
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: radial-gradient(circle at top,#0b1220,#020617);
+  color:white;
+}
+
+.box{
+  width:380px;
+  padding:30px;
+  border-radius:15px;
+  background: rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  box-shadow:0 0 25px rgba(139,92,246,0.2);
+  text-align:center;
+}
+
+h1{
+  margin-bottom:20px;
+  color:#a855f7;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:transparent;
+  color:white;
+  outline:none;
+}
+
+input:focus{
+  border-color:#a855f7;
+  box-shadow:0 0 10px #a855f7;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#a855f7,#6d28d9);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.03);
+}
+
+.small{
+  margin-top:15px;
+  font-size:13px;
+  color:#aaa;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h1>Criar Conta</h1>
+
+  <input id="username" placeholder="Username">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="register()">REGISTAR</button>
+
+  <div class="small" onclick="goLogin()">
+    Já tens conta? Entrar
+  </div>
+
+</div>
+
+<script>
+
+async function register(){
+
+  const username = document.getElementById("username").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if(!username || !email || !password){
+    alert("Preenche todos os campos!");
+    return;
+  }
+
+  try{
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username,
+        email,
+        password
+      })
+    });
+
+    const data = await res.json();
+
+    if(res.ok){
+      alert("Conta criada com sucesso!");
+      window.location.href = "login.html";
+    }else{
+      alert(data.message || "Erro ao registar");
+    }
+
+  }catch(err){
+    alert("Erro de servidor");
+  }
+}
+
+function goLogin(){
+  window.location.href = "login.html";
+}
+
+</script>
+
+</body>
+</html>
