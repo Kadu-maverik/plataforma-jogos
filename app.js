@@ -4,60 +4,95 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
-
 require("dotenv").config();
 
+// DATABASE
 const conectarMongo = require("./database/mongodb");
 
+// ROUTES
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 
+// SOCKETS
 const lobbySocket = require("./sockets/lobbySocket");
+const chatSocket = require("./sockets/chatSocket");
+const friendSocket = require("./sockets/friendSocket");
 
+// GAME SOCKETS
 const damaSocket = require("./games/dama/socket");
+const xadrezSocket = require("./games/xadrez/socket");
+const dominoSocket = require("./games/domino/socket");
+const velhaSocket = require("./games/velha/socket");
 
+// APP + SERVER
 const app = express();
 const server = http.createServer(app);
 
+// SOCKET.IO
 const io = new Server(server, {
-    cors: { origin: "*" }
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
 });
 
-// SOCKETS
+// =========================
+// 🔌 CONECTAR SOCKETS
+// =========================
 lobbySocket(io);
-damaSocket(io);
+chatSocket(io);
+friendSocket(io);
 
-// MIDDLEWARES
+damaSocket(io);
+xadrezSocket(io);
+dominoSocket(io);
+velhaSocket(io);
+
+// =========================
+// 🧠 MIDDLEWARES
+// =========================
 app.use(cors());
 app.use(express.json());
 
-// FRONTEND
+// =========================
+// 🌐 FRONTEND (CLIENT)
+// =========================
 app.use(express.static(path.join(__dirname, "client")));
 
-// ROTAS API
-app.use("/api/user", userRoutes);
+// =========================
+// 🔗 ROTAS API
+// =========================
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
-// PÁGINA INICIAL
+// =========================
+// 🏠 ROTA PRINCIPAL
+// =========================
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "login.html"));
 });
 
-// SOCKET LOG
+// =========================
+// 🔌 SOCKET GLOBAL LOG
+// =========================
 io.on("connection", (socket) => {
-    console.log("Jogador conectado:", socket.id);
+    console.log("🟢 Jogador conectado:", socket.id);
 
     socket.on("disconnect", () => {
-        console.log("Jogador saiu:", socket.id);
+        console.log("🔴 Jogador saiu:", socket.id);
     });
 });
 
-// BANCO
+// =========================
+// 🗄️ BANCO DE DADOS
+// =========================
 conectarMongo();
 
-// PORT
+// =========================
+// 🚀 START SERVER
+// =========================
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-    console.log(`Servidor iniciado na porta ${PORT}`);
+    console.log(`🚀 Servidor iniciado na porta ${PORT}`);
 });
