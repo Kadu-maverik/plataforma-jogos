@@ -52,9 +52,6 @@ io.on("connection", (socket) => {
 
     damaSocket(io, socket);
 });
-xadrezSocket(io);
-dominoSocket(io);
-velhaSocket(io);
 
 // =========================
 // 🧠 MIDDLEWARES
