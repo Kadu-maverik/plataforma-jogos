@@ -43,7 +43,15 @@ lobbySocket(io);
 chatSocket(io);
 friendSocket(io);
 
-damaSocket(io);
+io.on("connection", (socket) => {
+    console.log("Jogador conectado:", socket.id);
+
+    lobbySocket(io, socket);
+    chatSocket(io, socket);
+    friendSocket(io, socket);
+
+    damaSocket(io, socket);
+});
 xadrezSocket(io);
 dominoSocket(io);
 velhaSocket(io);
