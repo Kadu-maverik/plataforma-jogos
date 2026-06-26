@@ -205,7 +205,7 @@ if(user){
 
 // funções
 const gamesRoutes = {
-  dama: "lobby.html/games/dama.html",
+  dama: "games/dama/lobby.html",
   xadrez: "games/xadrez/lobby.html",
   domino: "games/domino/lobby.html",
   velha: "games/velha/lobby.html"
@@ -214,6 +214,7 @@ const gamesRoutes = {
 function play(game){
   window.location.href = gamesRoutes[game];
 }
+
 
 function goLobby(){
   alert("Entrando no lobby...");
