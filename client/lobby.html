@@ -197,7 +197,7 @@ socket.on("startGame", () => {
     setStatus("Jogo a iniciar...");
 
     setTimeout(() => {
-        window.location.href = "/menu.html";
+        window.location.href = `/games/dama.html?room=${currentRoom}`;
     }, 1500);
 });
 

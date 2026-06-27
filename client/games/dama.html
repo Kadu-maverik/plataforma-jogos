@@ -251,7 +251,10 @@ function movePiece(targetCell){
 --------------------------*/
 socket.on("connect", () => {
     statusText.innerText = "Conectado ao servidor ✔";
-    socket.emit("joinDama");
+    const params = new URLSearchParams(window.location.search);
+const roomId = params.get("room");
+
+socket.emit("joinDama", { roomId });
 });
 
 socket.on("assignColor", (color) => {
