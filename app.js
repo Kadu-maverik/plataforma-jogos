@@ -68,6 +68,11 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
     console.log("🟢 Jogador conectado:", socket.id);
 
+    lobbySocket(io, socket);
+    chatSocket(io, socket);
+    friendSocket(io, socket);
+    damaSocket(io, socket);
+
     socket.on("disconnect", () => {
         console.log("🔴 Jogador saiu:", socket.id);
     });
