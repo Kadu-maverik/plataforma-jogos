@@ -80,9 +80,11 @@ if (partida.players && partida.players.length >= 2) {
     return;
 }
 
-partida = adicionarJogador(codigo, {
+adicionarJogador(codigo, {
     id: socket.id
 });
+
+partida = pegarPartida(codigo);
 
 
 
