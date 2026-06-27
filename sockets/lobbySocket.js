@@ -50,10 +50,9 @@ socket.join(codigo);
 
 
 
-socket.emit(
-"salaCriada",
-codigo
-);
+socket.emit("salaCriada", codigo);
+
+io.to(codigo).emit("roomPlayers", partida.players || []);
 
 
 
@@ -97,6 +96,8 @@ return;
 
 
 socket.join(codigo);
+
+io.to(codigo).emit("roomPlayers", partida.players || []);
 
 
 

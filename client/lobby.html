@@ -138,20 +138,21 @@ let currentRoom = null;
 /* CRIAR SALA */
 function createRoom(){
     const username = document.getElementById("username").value;
-    const roomId = document.getElementById("roomId").value;
 
-    if(!username || !roomId){
-        alert("Preenche todos os campos!");
+    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    if(!username){
+        alert("Preenche o nome!");
         return;
     }
 
     socket.emit("criarSala", {
-    username,
-    roomId
-});
+        username,
+        roomId
+    });
 
     currentRoom = roomId;
-    setStatus("Sala criada: " + roomId);
+    setStatus("A criar sala...");
 }
 
 /* ENTRAR NA SALA */
@@ -160,17 +161,17 @@ function joinRoom(){
     const roomId = document.getElementById("roomId").value;
 
     if(!username || !roomId){
-        alert("Preenche todos os campos!");
+        alert("Preenche tudo!");
         return;
     }
 
     socket.emit("entrarSala", {
-    username,
-    roomId
-});
+        username,
+        roomId
+    });
 
     currentRoom = roomId;
-    setStatus("Entrou na sala: " + roomId);
+    setStatus("A entrar na sala...");
 }
 
 /* SAIR DA SALA */
