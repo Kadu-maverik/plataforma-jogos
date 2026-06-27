@@ -145,7 +145,10 @@ function createRoom(){
         return;
     }
 
-    socket.emit("createRoom", { username, roomId });
+    socket.emit("criarSala", {
+    username,
+    roomId
+});
 
     currentRoom = roomId;
     setStatus("Sala criada: " + roomId);
@@ -161,7 +164,10 @@ function joinRoom(){
         return;
     }
 
-    socket.emit("joinRoom", { username, roomId });
+    socket.emit("entrarSala", {
+    username,
+    roomId
+});
 
     currentRoom = roomId;
     setStatus("Entrou na sala: " + roomId);
@@ -171,7 +177,9 @@ function joinRoom(){
 function leaveRoom(){
     if(!currentRoom) return;
 
-    socket.emit("leaveRoom", { roomId: currentRoom });
+    socket.emit("sairSala", {
+    roomId: currentRoom
+});
 
     document.getElementById("players").innerHTML = "";
     setStatus("Saiu da sala");

@@ -273,17 +273,13 @@ const gamesRoutes = {
 };
 
 function play(game){
-  const route = gamesRoutes[game];
 
-  if(!route){
-    alert("Jogo não encontrado!");
-    return;
-  }
+  // guarda o jogo escolhido
+  localStorage.setItem("selectedGame", game);
 
-  // futuro: integrar lobbySocket antes de entrar no jogo
-  window.location.href = route;
+  // vai para o lobby
+  window.location.href = "lobby.html";
 }
-
 function goLobby(){
   // futuro: socket.emit("joinLobby")
   window.location.href = "lobby.html";

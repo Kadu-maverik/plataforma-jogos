@@ -64,9 +64,9 @@ codigo
 
 
 
-socket.on(
-"entrarSala",
-(codigo)=>{
+socket.on("entrarSala", (data) => {
+
+    const codigo = data.roomId;
 
 
 
@@ -100,13 +100,9 @@ socket.join(codigo);
 
 
 
-io.to(codigo)
-.emit(
-"jogadoresProntos",
-{
-codigo:codigo
-}
-);
+io.to(codigo).emit("startGame", {
+    codigo: codigo
+});
 
 
 
