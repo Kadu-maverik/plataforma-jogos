@@ -152,7 +152,9 @@ function createRoom(){
     });
 
     currentRoom = roomId;
-    setStatus("A criar sala...");
+
+    setStatus("Sala criada: " + roomId + " (aguardando jogador)");
+document.getElementById("roomId").value = roomId;
 }
 
 /* ENTRAR NA SALA */

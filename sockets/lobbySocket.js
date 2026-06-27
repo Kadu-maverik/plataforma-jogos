@@ -68,30 +68,21 @@ socket.on("entrarSala", (data) => {
     const codigo = data.roomId;
 
 
+let partida = pegarPartida(codigo);
 
-let partida =
-adicionarJogador(
-codigo,
-{
-id:socket.id
+if (!partida) {
+    socket.emit("erroSala", "Sala não existe");
+    return;
 }
-);
 
-
-
-if(!partida){
-
-
-socket.emit(
-"erroSala",
-"Sala cheia ou inexistente"
-);
-
-
-return;
-
-
+if (partida.players && partida.players.length >= 2) {
+    socket.emit("erroSala", "Sala cheia");
+    return;
 }
+
+partida = adicionarJogador(codigo, {
+    id: socket.id
+});
 
 
 
@@ -100,10 +91,11 @@ socket.join(codigo);
 io.to(codigo).emit("roomPlayers", partida.players || []);
 
 
-
-io.to(codigo).emit("startGame", {
-    codigo: codigo
-});
+if (partida.players && partida.players.length === 2) {
+    io.to(codigo).emit("startGame", {
+        codigo: codigo
+    });
+}
 
 
 

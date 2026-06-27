@@ -36,9 +36,6 @@ const io = new Server(server, {
 // =========================
 // 🔌 CONECTAR SOCKETS
 // =========================
-lobbySocket(io);
-chatSocket(io);
-friendSocket(io);
 
 io.on("connection", (socket) => {
     console.log("Jogador conectado:", socket.id);
