@@ -1,113 +1,123 @@
-const partidas = {};
+const {
 
+criarPartida,
+adicionarJogador,
+pegarPartida
 
-function criarPartida(id,sala,jogo){
-
-partidas[sala]={
-
-id:id,
-
-jogo:jogo,
-
-jogadores:[],
-
-estado:"esperando",
-
-criada:new Date()
-
-};
-
-
-return partidas[sala];
-
-}
+}=require("../core/matchManager");
 
 
 
-function adicionarJogador(sala,jogador){
+function lobbySocket(io){
 
 
-let partida = partidas[sala];
-
-
-if(!partida)
-return false;
+io.on("connection",(socket)=>{
 
 
 
-if(partida.jogadores.length >= 2){
-
-return false;
-
-}
+socket.on(
+"criarSala",
+(data)=>{
 
 
-
-partida.jogadores.push(jogador);
-
-
-
-if(partida.jogadores.length===2){
-
-partida.estado="em_andamento";
-
-}
+let codigo =
+Math.random()
+.toString(36)
+.substring(2,8)
+.toUpperCase();
 
 
 
-return partida;
-
-
-}
-
-
-
-
-function removerJogador(sala,id){
-
-
-if(!partidas[sala])
-return;
-
-
-
-partidas[sala].jogadores =
-partidas[sala]
-.jogadores
-.filter(
-j=>j.id!==id
+let partida =
+criarPartida(
+socket.id,
+codigo,
+data?.jogo || "dama"
 );
 
 
 
-if(partidas[sala].jogadores.length===0){
+adicionarJogador(
+codigo,
+{
+id:socket.id
+}
+);
 
-delete partidas[sala];
 
+
+socket.join(codigo);
+
+
+
+socket.emit("salaCriada", codigo);
+
+io.to(codigo).emit("roomPlayers", partida.jogadores || []);
+
+
+
+});
+
+
+
+
+
+
+socket.on("entrarSala", (data) => {
+
+    const codigo = data.roomId;
+
+
+let partida = pegarPartida(codigo);
+
+if (!partida) {
+    socket.emit("erroSala", "Sala não existe");
+    return;
+}
+
+if (partida.jogadores && partida.jogadores.length >= 2) {
+    socket.emit("erroSala", "Sala cheia");
+    return;
+}
+
+partida = adicionarJogador(codigo, {
+    id: socket.id
+});
+
+
+
+socket.join(codigo);
+
+io.to(codigo).emit("roomPlayers", partida.jogadores || []);
+
+
+if (partida.jogadores && partida.jogadores.length === 2) {
+    io.to(codigo).emit("startGame", {
+        codigo: codigo
+    });
 }
 
 
 
+});
+
+
+
+
+socket.on(
+"disconnect",
+()=>{
+
+
+});
+
+
+
+});
+
+
+
 }
 
 
-
-function pegarPartida(sala){
-
-return partidas[sala];
-
-}
-
-
-
-module.exports={
-
-criarPartida,
-
-adicionarJogador,
-
-removerJogador,
-
-pegarPartida
-
-};
+module.exports=lobbySocket;
