@@ -203,13 +203,11 @@ socket.on("roomPlayers", (players) => {
 
 /* INICIAR JOGO */
 socket.on("startGame", (data) => {
-    setStatus("Jogo a iniciar...");
-
-    const room = data?.codigo || currentRoom;
+    const room = data.codigo;
 
     setTimeout(() => {
         window.location.href = `/games/dama.html?room=${room}`;
-    }, 1500);
+    }, 500);
 });
 
 /* STATUS */

@@ -254,7 +254,10 @@ socket.on("connect", () => {
     const params = new URLSearchParams(window.location.search);
 const roomId = params.get("room");
 
-socket.emit("joinDama", { roomId });
+socket.emit("dama:joinMatch", {
+    matchId: roomId,
+    userId: "PLAYER_" + Math.random().toString(36).substring(2,6)
+});
 });
 
 socket.on("assignColor", (color) => {
