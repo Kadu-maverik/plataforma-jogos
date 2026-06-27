@@ -14,8 +14,11 @@ function registerDamaSocket(io, socket) {
      * 🎯 Entrar numa partida de dama
      */
     socket.on('dama:joinMatch', ({ matchId, userId }) => {
+socket.data.matchId = matchId;
+socket.data.userId = userId;
+
         try {
-            const match = matchManager.getMatch(matchId);
+            const match = matchManager.pegarPartida(matchId);
 
             if (!match) {
                 return socket.emit('dama:error', { message: 'Partida não encontrada' });
@@ -24,11 +27,11 @@ function registerDamaSocket(io, socket) {
             socket.join(matchId);
 
             // Associa socket ao jogador
-            matchManager.attachSocket(matchId, userId, socket.id);
+            
 
             // Se o jogo ainda não iniciou, inicia engine
             if (!match.engine) {
-                match.engine = new DamaEngine(match.players);
+                match.engine = new DamaEngine(match.jogadores || []);
             }
 
             io.to(matchId).emit('dama:state', {
@@ -47,7 +50,7 @@ function registerDamaSocket(io, socket) {
      */
     socket.on('dama:move', ({ matchId, from, to, userId }) => {
         try {
-            const match = matchManager.getMatch(matchId);
+            const match = matchManager.pegarPartida(matchId);
 
             if (!match || !match.engine) {
                 return socket.emit('dama:error', { message: 'Partida inválida' });
@@ -83,7 +86,7 @@ function registerDamaSocket(io, socket) {
                 });
 
                 // Guarda resultado no sistema
-                matchManager.finishMatch(matchId, winner);
+                
             }
 
         } catch (err) {
@@ -114,23 +117,23 @@ function registerDamaSocket(io, socket) {
      * ❌ Desconexão
      */
     socket.on('disconnect', () => {
-        try {
-            const matchId = matchManager.findMatchBySocket(socket.id);
+    try {
+        const { matchId, userId } = socket.data;
 
-            if (!matchId) return;
+        if (!matchId || !userId) return;
 
-            const userId = matchManager.getUserBySocket(socket.id);
+        matchManager.removePlayer(matchId, userId);
 
-            matchManager.removePlayer(matchId, userId);
+        io.to(matchId).emit('dama:playerDisconnected', {
+            userId
+        });
 
-            io.to(matchId).emit('dama:playerDisconnected', {
-                userId
-            });
+    } catch (err) {
+        console.error(err);
+    }
+});
 
-        } catch (err) {
-            console.error(err);
-        }
-    });
+
 }
 
 module.exports = registerDamaSocket;

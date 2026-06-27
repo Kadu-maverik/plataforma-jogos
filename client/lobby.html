@@ -139,23 +139,21 @@ let currentRoom = null;
 function createRoom(){
     const username = document.getElementById("username").value;
 
-    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-
     if(!username){
         alert("Preenche o nome!");
         return;
     }
 
-    socket.emit("criarSala", {
-        username,
-        roomId
-    });
+    socket.emit("criarSala", { username });
 
-    currentRoom = roomId;
-
-    setStatus("Sala criada: " + roomId + " (aguardando jogador)");
-document.getElementById("roomId").value = roomId;
+    setStatus("A criar sala...");
 }
+
+socket.on("salaCriada", (roomId) => {
+    currentRoom = roomId;
+    document.getElementById("roomId").value = roomId;
+    setStatus("Sala criada: " + roomId);
+});
 
 /* ENTRAR NA SALA */
 function joinRoom(){
@@ -198,17 +196,19 @@ socket.on("roomPlayers", (players) => {
     players.forEach(p => {
         const div = document.createElement("div");
         div.className = "player";
-        div.innerText = p;
+        div.innerText = p.id;
         container.appendChild(div);
     });
 });
 
 /* INICIAR JOGO */
-socket.on("startGame", () => {
+socket.on("startGame", (data) => {
     setStatus("Jogo a iniciar...");
 
+    const room = data?.codigo || currentRoom;
+
     setTimeout(() => {
-        window.location.href = `/games/dama.html?room=${currentRoom}`;
+        window.location.href = `/games/dama.html?room=${room}`;
     }, 1500);
 });
 

@@ -37,15 +37,6 @@ const io = new Server(server, {
 // 🔌 CONECTAR SOCKETS
 // =========================
 
-io.on("connection", (socket) => {
-    console.log("Jogador conectado:", socket.id);
-
-    lobbySocket(io, socket);
-    chatSocket(io, socket);
-    friendSocket(io, socket);
-
-    damaSocket(io, socket);
-});
 
 // =========================
 // 🧠 MIDDLEWARES
